@@ -1,0 +1,36 @@
+-- Создание базы данных
+CREATE DATABASE IF NOT EXISTS TrolleybusNetwork;
+USE TrolleybusNetwork;
+
+-- Таблица для маршрутов
+CREATE TABLE IF NOT EXISTS routes (
+    route_id INT AUTO_INCREMENT PRIMARY KEY,  -- Уникальный идентификатор маршрута
+    route_number INT NOT NULL                 -- Номер маршрута (целое число)
+);
+
+-- Таблица для остановок
+CREATE TABLE IF NOT EXISTS stops (
+    stop_id INT AUTO_INCREMENT PRIMARY KEY,   -- Уникальный идентификатор остановки
+    stop_name VARCHAR(255) NOT NULL,          -- Название остановки
+    stop_code VARCHAR(50) UNIQUE NOT NULL     -- Уникальный код остановки
+);
+
+-- Таблица для связи маршрутов и остановок (с указанием порядка остановок)
+CREATE TABLE IF NOT EXISTS route_stops (
+    route_stop_id INT AUTO_INCREMENT PRIMARY KEY,   -- Уникальный идентификатор записи
+    route_id INT,                                   -- Идентификатор маршрута
+    stop_id INT,                                    -- Идентификатор остановки
+    stop_order INT,                                 -- Порядок остановки в маршруте
+    FOREIGN KEY (route_id) REFERENCES routes(route_id) ON DELETE CASCADE,
+    FOREIGN KEY (stop_id) REFERENCES stops(stop_id) ON DELETE CASCADE,
+    UNIQUE (route_id, stop_order)                   -- Уникальный порядок остановок на маршруте
+);
+
+-- Таблица для хранения информации о смежных остановках (некоторые остановки могут быть связаны между собой)
+CREATE TABLE IF NOT EXISTS stop_neighbours (
+    stop_id INT,                                    -- Остановка
+    neighbour_stop_id INT,                          -- Смежная остановка
+    FOREIGN KEY (stop_id) REFERENCES stops(stop_id) ON DELETE CASCADE,
+    FOREIGN KEY (neighbour_stop_id) REFERENCES stops(stop_id) ON DELETE CASCADE,
+    UNIQUE (stop_id, neighbour_stop_id)             -- Уникальная связь между остановками
+);
